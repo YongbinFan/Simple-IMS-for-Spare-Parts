@@ -2,8 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from app01 import models
 from django import forms
 from django.utils.safestring import mark_safe
-from urllib.parse import urlencode
-import math
+from app01.utils.pagination import Pagination
 
 
 # Create your views here.
@@ -167,57 +166,14 @@ def spareparts_list(request):
     if page <= 0:
         page = 1
 
-    page_size = 20
-    plus = 5
-    total_count = models.SpareParts.objects.filter(**data_dict).count()
-    total_page = math.ceil(total_count / page_size)
-    if total_page == 0: total_page = 1
-
-    if page >= total_page:
-        page = total_page
-
-    if total_page <= 2 * plus + 1:
-        # not too much page
-        start_page = 1
-        end_page = total_page
-    else:
-        # current page <= plus
-        if page <= plus:
-            start_page = 1
-            end_page = 2 * plus + 1
-        else:
-            if (page + plus) > total_page:
-                end_page = total_page
-                start_page = total_page - 2 * plus
-            else:
-                start_page = page - plus
-                end_page = page + plus
-
-    start = (page - 1) * page_size
-    end = start + page_size
-
-    res = models.SpareParts.objects.filter(**data_dict)[start: end]
-
-    page_str_list = []
-    first = '<li class=><a href="?' + urlencode(data_dict) + '&page={}">First Page</a></li>'.format(1)
-    prev = '<li class=><a href="?' + urlencode(data_dict) + '&page={}"><<</a></li>'.format(page - 1)
-    next_page = '<li class=><a href="?' + urlencode(data_dict) + '&page={}">>></a></li>'.format(page + 1)
-    last = '<li class=><a href="?' + urlencode(data_dict) + '&page={}">Last Page</a></li>'.format(total_page)
-    page_str_list.append(first)
-    page_str_list.append(prev)
-    for i in range(start_page, end_page + 1):
-        if i == page:
-            ele = '<li class="active"><a href="?' + urlencode(data_dict) + '&page={}">{}</a></li>'.format(i, i)
-        else:
-            ele = '<li><a href="?' + urlencode(data_dict) + '&page={}">{}</a></li>'.format(i, i)
-        page_str_list.append(ele)
-    page_str_list.append(next_page)
-    page_str_list.append(last)
+    page_object = Pagination(request, data_dict=data_dict)
+    queryset = page_object.queryset
+    page_str = page_object.page_str
 
     info = {
-        'queryset': res,
+        'queryset': queryset,
         "search_value": data_dict,
-        "page_str": mark_safe("".join(page_str_list)),
+        "page_str": mark_safe(page_str),
     }
 
     return render(request, "spareparts_list.html", info)
