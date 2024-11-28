@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}
+    User List
+{% endblock %}
+{% block content %}
+        <div style="margin-bottom: 10px">
+            <a href="/user/add/" class="btn btn-primary">Add New User</a>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                User List
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Password</th>
+                    <th>Create Time(YMD)</th>
+                    <th>Department</th>
+                    <th>Gender</th>
+                    <th>Operate</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in queryset %}
+                    <tr>
+                        <th>{{ obj.id }}</th>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.password }}</td>
+                        <td>{{ obj.create_time }}</td>
+                        <td>{{ obj.depart_id.title }}</td>
+                        <td>{{ obj.get_gender_display }}</td>
+                        <td>
+                            <a class="btn btn-primary btn-xs" href="/user/{{ obj.id }}/edit/">Edit</a>
+                            <a class="btn btn-danger btn-xs" href="/user/{{ obj.id }}/delete/">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}

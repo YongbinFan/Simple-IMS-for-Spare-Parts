@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block title %}
+    Spare Parts List
+{% endblock %}
+{% block content %}
+    <div style="margin-bottom: 10px" class="clearfix">
+        <a href="/spareparts/add/" class="btn btn-primary">Add New Spare Part</a>
+
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Search</div>
+        <div class="panel-body">
+            <form method="get" class="form">
+                <div class="row">
+                    <div class="col-xs-2">
+                        <label class="control-label" for="">Series</label>
+                        <select class="form-control" name="series">
+                            <option value="">All</option>
+                            <option value="1" {% if search_value.series == 1 %}selected{% else %}{% endif %}>Accessory</option>
+                            <option value="2" {% if search_value.series == 2 %}selected{% else %}{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-2">
+                        <label class="control-label" for="">Part No.</label>
+                        <input type="text" class="form-control" placeholder="Part No." name="part_no__contains"
+                               value="{{ search_value.part_no__contains }}">
+                    </div>
+                    <div class="col-xs-2">
+                        <label for="">Model</label>
+                        <input type="text" class="form-control" placeholder="Model" name="model__contains"
+                               value="{{ search_value.model__contains }}">
+                    </div>
+                    <div class="col-xs-2">
+                        <label for="">Quantity >=</label>
+                        <input type="text" class="form-control" placeholder="Quantity >=" name="quantity__gte"
+                               value="{{ search_value.quantity__gte }}">
+                    </div>
+                    <div class="col-xs-2">
+                        <label for="">Quantity <=</label>
+                        <input type="text" class="form-control" placeholder="Quantity <=" name="quantity__lte"
+                               value="{{ search_value.quantity__lte }}">
+                    </div>
+                    <div class="col-xs-2" style="margin-top: 25px">
+                        <button type="submit" class="btn btn-info right" style="float: right">Search</button>
+
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            User List
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Series</th>
+                <th>Part No.</th>
+                <th>Model</th>
+                <th>Quantity</th>
+                <th>other</th>
+                <th>Last Edit</th>
+                <th>Operate</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in queryset %}
+                <tr>
+                    <th>{{ obj.id }}</th>
+                    <td>{{ obj.get_series_display }}</td>
+                    <td>{{ obj.part_no }}</td>
+                    <td>{{ obj.model }}</td>
+                    <td>{{ obj.quantity }}</td>
+                    <td>{{ obj.other }}</td>
+                    <td>{{ obj.last_edit }}</td>
+                    <td>
+                        <a class="btn btn-primary btn-xs" href="/spareparts/{{ obj.id }}/edit/">Edit</a>
+                        <a class="btn btn-danger btn-xs" href="/spareparts/{{ obj.id }}/delete/">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

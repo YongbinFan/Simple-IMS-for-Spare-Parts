@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}
+    Edit User
+{% endblock %}
+{% block content %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Edit User
+        </div>
+        <div class="panel-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {#                        <input type="text" class="form-control" placeholder="Title" name="title">#}
+                        {{ field }}
+                        <span style="color: red">{{ field.errors.0 }}</span>
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
