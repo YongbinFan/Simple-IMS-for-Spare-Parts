@@ -16,8 +16,10 @@
                         <label class="control-label" for="">Series</label>
                         <select class="form-control" name="series">
                             <option value="">All</option>
-                            <option value="1" {% if search_value.series == 1 %}selected{% else %}{% endif %}>Accessory</option>
-                            <option value="2" {% if search_value.series == 2 %}selected{% else %}{% endif %}>Other</option>
+                            <option value="1" {% if search_value.series == 1 %}selected{% else %}{% endif %}>Accessory
+                            </option>
+                            <option value="2" {% if search_value.series == 2 %}selected{% else %}{% endif %}>Other
+                            </option>
                         </select>
                     </div>
                     <div class="col-xs-2">
@@ -86,5 +88,11 @@
             {% endfor %}
             </tbody>
         </table>
+
     </div>
+    <ul class="pagination">
+    {{ page_str }}
+    </ul>
+
+
 {% endblock %}
