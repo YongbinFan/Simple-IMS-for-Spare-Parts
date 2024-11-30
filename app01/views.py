@@ -3,6 +3,7 @@ from app01 import models
 from django import forms
 from django.utils.safestring import mark_safe
 from app01.utils.pagination import Pagination
+from app01.utils.encrypt import md5
 
 
 # Create your views here.
@@ -71,6 +72,12 @@ class UserModelForm(forms.ModelForm):
         for name, field in self.fields.items():
             field.widget.attrs = {"class": "form-control"}
 
+    # encrypt password
+    def clean_password(self):
+        pwd = self.cleaned_data.get('password')
+        pwd = md5(pwd)
+        return pwd
+
 
 def user_add(request):
     """Add New User"""
@@ -94,7 +101,11 @@ def user_add(request):
 def user_edit(request, nid):
     """Edit User"""
     row_object = models.UserInfo.objects.filter(id=nid).first()
+    row_object.password = "******"
+    print(row_object.password)
     form = UserModelForm(instance=row_object)
+    form.fields["password"].initial = "******"
+
     if request.method == "GET":
         info = {
             "row_object": row_object,
