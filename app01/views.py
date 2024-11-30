@@ -295,3 +295,8 @@ def login(request):
         }
         return redirect("/spareparts/list/")
     return render(request, "login.html", info)
+
+
+def logout(request):
+    request.session.clear()
+    return redirect("/login/")
