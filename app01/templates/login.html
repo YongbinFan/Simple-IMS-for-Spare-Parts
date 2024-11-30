@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">
+    <style>
+        .account {
+            width: 400px;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            box-shadow: 5px 5px 20px #aaa;
+
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 100px;
+            padding: 20px 40px;
+        }
+
+        .account h2 {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="account">
+    <h2>User Login</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label>User Name</label>
+            {{ form.name }}
+            <span style="color:red;">{{ form.name.errors.0 }}</span>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            {{ form.password }}
+            <span style="color:red;">{{ form.password.errors.0 }}</span>
+
+        </div>
+        <input type="submit" value="login" class="btn btn-primary">
+    </form>
+</div>
+
+</body>
+</html>

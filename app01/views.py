@@ -251,3 +251,47 @@ def spareparts_delete(request, nid):
     models.SpareParts.objects.filter(id=nid).delete()
 
     return redirect("/spareparts/list/")
+
+
+class LoginForm(forms.Form):
+    name = forms.CharField(
+        label="User Name",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=True
+    )
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        required=True
+    )
+
+    def clean_password(self):
+        password = md5(self.cleaned_data.get("password"))
+        return password
+
+
+def login(request):
+    if request.method == "GET":
+        form = LoginForm()
+        info = {
+            "form": form
+        }
+        return render(request, "login.html", info)
+    form = LoginForm(data=request.POST)
+    info = {
+        "form": form
+    }
+    if form.is_valid():
+        user_object = models.UserInfo.objects.filter(**form.cleaned_data).filter().first()
+        # cannot find the user with the name and pwd
+        if not user_object:
+            form.add_error("name", "User name or password is wrong!")
+            form.add_error("password", "User name or password is wrong!")
+            return render(request, "login.html", info)
+        # validate pass
+        request.session["info"] = {
+            "id": user_object.id,
+            "name": user_object.name
+        }
+        return redirect("/spareparts/list/")
+    return render(request, "login.html", info)

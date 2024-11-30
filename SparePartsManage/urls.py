@@ -37,4 +37,7 @@ urlpatterns = [
     path("spareparts/add/", views.spareparts_add),
     path("spareparts/<int:nid>/delete/", views.spareparts_delete),
     path("spareparts/<int:nid>/edit/", views.spareparts_edit),
+
+
+    path("login/", views.login),
 ]
