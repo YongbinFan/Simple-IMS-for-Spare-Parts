@@ -34,6 +34,14 @@ class SpareParts(models.Model):
     part_no = models.CharField(verbose_name="Part No.", max_length=32)
     model = models.CharField(verbose_name="Model", max_length=64)
     quantity = models.IntegerField(verbose_name="Quantity", default=0)
-    other = models.CharField(verbose_name="Other", max_length=128,blank=True, null=True)
+    other = models.CharField(verbose_name="Other", max_length=128, blank=True, null=True)
     last_edit = models.DateTimeField(verbose_name="Last Edit Time", auto_now=True)
 
+    def __str__(self):
+        return "**".join([
+            "ID:" + str(self.id),
+            "Series:" + self.get_series_display(),
+            "Part-No:" + self.part_no,
+            "Model:" + self.model,
+            "Quantity-Now:" + str(self.quantity)
+        ])

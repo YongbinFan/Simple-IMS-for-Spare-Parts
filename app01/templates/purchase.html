@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}
+    Spare Parts List
+{% endblock %}
+{% block content %}
+    <div style="margin-bottom: 10px" class="clearfix">
+        <button id="btn1" class="btn btn-primary">Add Item</button>
+
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Purchase Order
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Select</th>
+                <th style="width: 15%">Quantity</th>
+                <th>Operate</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <input list="select" name="obj" class="form-control"/>
+                    <datalist id="select">
+                        {% for obj in queryset %}
+                            <option value={{ obj }}>
+                        {% endfor %}
+                    </datalist>
+                </td>
+                <td>
+                    <input name="quantity" class="form-control" min="1" value=1 style="width: 100%"/>
+
+                </td>
+                <td>
+                    <btn class="btn btn-danger">Delete</btn>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div style="margin-bottom: 10px" class="clearfix">
+        <button id="btn1" class="btn btn-success">Submit</button>
+
+    </div>
+
+
+
+{% endblock %}
+{% block js %}
+    <script type="text/javascript">
+        $(function () {
+            bindBtn1Event()
+        })
+
+        function bindBtn1Event() {
+            $("#btn1").click(
+                function () {
+                    $.ajax({
+                        url: '/test/ajax/',
+                        type: 'post',
+                        data: {
+                            n1: 132,
+                            n2: 132
+                        },
+                        dataType: "JSON",
+                        success: function (res) {
+                            console.log(res)
+
+                        }
+                    })
+                }
+            )
+        }
+
+    </script>
+{% endblock %}

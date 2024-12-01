@@ -38,7 +38,10 @@ urlpatterns = [
     path("spareparts/<int:nid>/delete/", views.spareparts_delete),
     path("spareparts/<int:nid>/edit/", views.spareparts_edit),
 
-
     path("login/", views.login),
     path("logout/", views.logout),
+
+    path("purchase/", views.purchase),
+    path("test/ajax/",views.test_ajax)
+
 ]

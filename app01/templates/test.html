@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .item-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .add-button {
+            margin-top: 20px;
+        }
+        .attr-display {
+            flex-grow: 1;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Purchase Items</h1>
+    <form id="purchaseForm">
+        <div id="itemsContainer">
+            <div class="item-row">
+                <select name="item" class="item-select">
+                    <option value="" disabled selected>Select an item</option>
+                </select>
+                <div class="attr-display">
+                    <span class="item-id">ID: -</span>,
+                    <span class="item-model">Model: -</span>,
+                    <span class="item-series">Series: -</span>
+                </div>
+                <input type="number" name="quantity" placeholder="Quantity" min="1" required>
+            </div>
+        </div>
+        <button type="button" id="addRowButton" class="add-button">Add New Line</button>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const items = []; // This will hold the items fetched from the backend
+
+        // Fetch items from the backend and populate dropdowns
+        async function fetchItems() {
+            try {
+                const response = await fetch('/api/items/');
+                const data = await response.json();
+                items.push(...data);
+
+                const selects = document.querySelectorAll('.item-select');
+                selects.forEach(select => populateDropdown(select, items));
+            } catch (error) {
+                console.error('Error fetching items:', error);
+            }
+        }
+
+        // Populate a dropdown with items
+        function populateDropdown(select, items) {
+            select.innerHTML = '<option value="" disabled selected>Select an item</option>';
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} (${item.model}, ${item.series})`;
+                option.dataset.id = item.id;
+                option.dataset.model = item.model;
+                option.dataset.series = item.series;
+                select.appendChild(option);
+            });
+        }
+
+        // Update attributes display when an item is selected
+        function updateAttributes(row, selectedOption) {
+            const idDisplay = row.querySelector('.item-id');
+            const modelDisplay = row.querySelector('.item-model');
+            const seriesDisplay = row.querySelector('.item-series');
+
+            idDisplay.textContent = `ID: ${selectedOption.dataset.id}`;
+            modelDisplay.textContent = `Model: ${selectedOption.dataset.model}`;
+            seriesDisplay.textContent = `Series: ${selectedOption.dataset.series}`;
+        }
+
+        // Add a new row for item selection
+        document.getElementById('addRowButton').addEventListener('click', () => {
+            const container = document.getElementById('itemsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row';
+
+            const newSelect = document.createElement('select');
+            newSelect.name = 'item';
+            newSelect.className = 'item-select';
+            populateDropdown(newSelect, items);
+
+            const attrDisplay = document.createElement('div');
+            attrDisplay.className = 'attr-display';
+            attrDisplay.innerHTML = `
+                <span class="item-id">ID: -</span>,
+                <span class="item-model">Model: -</span>,
+                <span class="item-series">Series: -</span>
+            `;
+
+            const newInput = document.createElement('input');
+            newInput.type = 'number';
+            newInput.name = 'quantity';
+            newInput.placeholder = 'Quantity';
+            newInput.min = 1;
+            newInput.required = true;
+
+            newRow.appendChild(newSelect);
+            newRow.appendChild(attrDisplay);
+            newRow.appendChild(newInput);
+            container.appendChild(newRow);
+
+            // Attach change listener for the new select
+            newSelect.addEventListener('change', () => {
+                updateAttributes(newRow, newSelect.options[newSelect.selectedIndex]);
+            });
+        });
+
+        // Attach change listener to existing select
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('item-select')) {
+                const row = e.target.closest('.item-row');
+                updateAttributes(row, e.target.options[e.target.selectedIndex]);
+            }
+        });
+
+        // Submit form data to the backend
+        document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rows = [...document.querySelectorAll('.item-row')];
+            const data = rows.map(row => {
+                const select = row.querySelector('.item-select');
+                const input = row.querySelector('input[name="quantity"]');
+                return {
+                    item: select.value,
+                    quantity: input.value
+                };
+            });
+
+            try {
+                const response = await fetch('/api/purchase/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Purchase submitted successfully!');
+                    document.getElementById('purchaseForm').reset();
+                } else {
+                    alert('Error submitting purchase.');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+            }
+        });
+
+        // Initialize the page
+        fetchItems();
+    </script>
+</body>
+</html>

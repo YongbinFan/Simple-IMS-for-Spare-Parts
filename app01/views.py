@@ -1,9 +1,12 @@
+import json
+
 from django.shortcuts import render, HttpResponse, redirect
 from app01 import models
 from django import forms
 from django.utils.safestring import mark_safe
 from app01.utils.pagination import Pagination
 from app01.utils.encrypt import md5
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -300,3 +303,22 @@ def login(request):
 def logout(request):
     request.session.clear()
     return redirect("/login/")
+
+
+def purchase(request):
+    queryset = models.SpareParts.objects.all()
+    info = {
+        "queryset": queryset
+    }
+    return render(request, "purchase.html", info)
+
+
+@csrf_exempt
+def test_ajax(request):
+    data_dict = {
+        "status": True,
+        "data": [11, 22, 33, 44]
+    }
+
+    json_str = json.dumps(data_dict)
+    return HttpResponse(json_str)
