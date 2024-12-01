@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <div style="margin-bottom: 10px" class="clearfix">
-        <button id="btn1" class="btn btn-primary">Add Item</button>
+        <button id="addItem" class="btn btn-primary">Add Item</button>
 
     </div>
     <div class="panel panel-default">
@@ -19,7 +19,7 @@
                 <th>Operate</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="tableBody">
             <tr>
                 <td>
                     <input list="select" name="obj" class="form-control"/>
@@ -34,7 +34,7 @@
 
                 </td>
                 <td>
-                    <btn class="btn btn-danger">Delete</btn>
+                    <btn class="deleteBtn btn btn-danger">Delete</btn>
                 </td>
             </tr>
             </tbody>
@@ -51,9 +51,85 @@
 {% endblock %}
 {% block js %}
     <script type="text/javascript">
+        let itemRow;
         $(function () {
-            bindBtn1Event()
+            // Store the first row as a template
+            itemRow = $("tbody tr").first();
+
+            // Bind click event to "Add Row" button
+            addItemEvent()
+
+            // Delegate click event for dynamically created delete buttons
+            deleteItemEvent()
+            /*
+            $(document).on("click", ".deleteBtn", function () {
+                $(this).closest("tr").remove(); // Remove the clicked row
+            });
+
+             */
         })
+
+        function addItemEvent() {
+            $("#addItem").click(function () {
+                const newRow = itemRow.clone(); // Clone the template row
+                $("#tableBody").append(newRow); // Append the new row to the tbody
+            });
+        }
+
+        function deleteItemEvent() {
+            $(".deleteBtn").click(function () {
+                $(this).closest("tr").remove(); // Remove the clicked row
+            })
+
+        }
+
+        /*
+                $(document).ready(function () {
+                    // Store the first row as a template
+                    itemRow = $("tbody tr").first();
+                    console.log("Template row:", itemRow);
+
+                    // Bind click event to "Add Row" button
+                    $("#addItem").click(function () {
+                        const newRow = itemRow.clone(); // Clone the template row
+                        $("#tableBody").append(newRow); // Append the new row to the tbody
+                    });
+
+                    // Delegate click event for dynamically created delete buttons
+                    $(document).on("click", ".deleteBtn", function () {
+                        $(this).closest("tr").remove(); // Remove the clicked row
+                    });
+                });
+                */
+
+
+
+        /*
+
+        $(function () {
+            bindDeleteBtnEvent()
+            bindAddItemEvent()
+        })
+        ;
+
+
+        function bindDeleteBtnEvent(button) {
+            const row = button.closest("tr");
+            if (row) {
+                row.remove();
+            }
+        }
+
+
+        function bindAddItemEvent() {
+
+            $("addItem").click(
+                function () {
+                    const newRow = itemRow.clone();
+                    $("#tableBody").append(newRow);
+                }
+            )
+        }
 
         function bindBtn1Event() {
             $("#btn1").click(
@@ -71,9 +147,9 @@
 
                         }
                     })
-                }
-            )
+                })
         }
 
+*/
     </script>
 {% endblock %}
