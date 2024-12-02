@@ -45,3 +45,10 @@ class SpareParts(models.Model):
             "Model:" + self.model,
             "Quantity-Now:" + str(self.quantity)
         ])
+
+
+class Trade(models.Model):
+    spareparts_id = models.ForeignKey(verbose_name="Spare Part", to="SpareParts", to_field="id",
+                                      on_delete=models.CASCADE)
+    quantity = models.IntegerField(verbose_name="Quantity", default=0)
+    trade_time = models.DateTimeField(verbose_name="Trade Time", auto_now_add=True)

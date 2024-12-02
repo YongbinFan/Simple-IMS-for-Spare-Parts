@@ -42,6 +42,5 @@ urlpatterns = [
     path("logout/", views.logout),
 
     path("purchase/", views.purchase),
-    path("test/ajax/",views.test_ajax)
 
 ]

@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.shortcuts import render, HttpResponse, redirect
 from app01 import models
@@ -305,20 +306,25 @@ def logout(request):
     return redirect("/login/")
 
 
-def purchase(request):
-    queryset = models.SpareParts.objects.all()
-    info = {
-        "queryset": queryset
-    }
-    return render(request, "purchase.html", info)
-
 
 @csrf_exempt
-def test_ajax(request):
-    data_dict = {
-        "status": True,
-        "data": [11, 22, 33, 44]
-    }
+def purchase(request):
+    if request.method == "GET":
+        queryset = models.SpareParts.objects.all()
+        info = {
+            "queryset": queryset
+        }
+        return render(request, "purchase.html", info)
 
-    json_str = json.dumps(data_dict)
-    return HttpResponse(json_str)
+    data = json.loads(request.body)
+    for item in data:
+        obj_str = item.get("obj")
+        match = re.search(r"ID:(\d+)", obj_str)
+        if match:
+            item_id = int(match.group(1))
+            item_quantity = int(item.get("quantity"), 0)
+            print(item_id, item_quantity)
+    # print(type(data[0]))
+    # print(data)
+    # print(data[0]["obj"])
+    return HttpResponse("Successful sent data!")

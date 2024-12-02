@@ -30,7 +30,7 @@
                     </datalist>
                 </td>
                 <td>
-                    <input name="quantity" class="form-control" min="1" value=1 style="width: 100%"/>
+                    <input name="quantity" required class="form-control" min="1" value=1 style="width: 100%"/>
 
                 </td>
                 <td>
@@ -41,8 +41,9 @@
         </table>
 
     </div>
+    <div id="errorMessages" style="color: red;"></div>
     <div style="margin-bottom: 10px" class="clearfix">
-        <button id="btn1" class="btn btn-success">Submit</button>
+        <button id="submit" class="btn btn-success">Submit</button>
 
     </div>
 
@@ -61,95 +62,121 @@
 
             // Delegate click event for dynamically created delete buttons
             deleteItemEvent()
-            /*
-            $(document).on("click", ".deleteBtn", function () {
-                $(this).closest("tr").remove(); // Remove the clicked row
-            });
 
-             */
+            submitEvent()
+
         })
 
         function addItemEvent() {
             $("#addItem").click(function () {
                 const newRow = itemRow.clone(); // Clone the template row
+
+                // Clear the input values in the cloned row
+                newRow.find('input').each(function () {
+                    $(this).val(''); // Clear the value
+                });
+
+                // Optionally set the quantity input to 1 as a default
+                newRow.find('input[name="quantity"]').val(1);
+
+                console.log("add")
                 $("#tableBody").append(newRow); // Append the new row to the tbody
             });
         }
 
         function deleteItemEvent() {
+            /*
+            this can only delete the old item row when the page first load
             $(".deleteBtn").click(function () {
                 $(this).closest("tr").remove(); // Remove the clicked row
+            })
+             */
+            {# dynamic delete new item row added #}
+            $(document).on("click", ".deleteBtn", function () {
+                $(this).closest("tr").remove(); // Remove the clicked row
+            });
+        };
+
+        function submitEvent() {
+            $("#submit").click(function () {
+                // Create an array to store all row data
+                $('#errorMessages').empty();
+                let hasError = false;
+                var tableData = [];
+                var objData = []
+                var errmsgSet = new Set();
+                // Loop through each row in the tbody
+                $("#tableBody tr").each(function () {
+                    var rowData = {};
+
+                    // Get the value of the 'obj' input (select input)
+                    rowData.obj = $(this).find('input[name="obj"]').val();
+
+                    // Get the value of the 'quantity' input
+                    rowData.quantity = $(this).find('input[name="quantity"]').val();
+
+                    if (!rowData.obj.trim()) {
+                        hasError = true;
+                        errmsgSet.add('<p>Object field cannot be empty.</p>');
+                    }
+
+                    if (!rowData.quantity.trim() || rowData.quantity <= 0) {
+                        hasError = true;
+                        errmsgSet.add('<p>Quantity must be greater than 0.</p>');
+                    }
+
+                    if (!Number.isInteger(rowData.quantity)) {
+                        hasError = true;
+                        errmsgSet.add('<p>Quantity must be Integer.</p>');
+                    }
+
+                    tableData.push(rowData); // Add the row data to the array
+
+
+                    console.log(objData)
+                    console.log(rowData.obj)
+                    console.log(objData.includes(rowData.obj))
+
+                    {#const myList = ["sdfsd", "dsf"];#}
+                    const valueToCheck = rowData.obj;
+
+                    // Check if the value exists in the array
+                    if (objData.includes(valueToCheck)) {
+                        console.log(`${valueToCheck} exists in the list.`);
+                        hasError = true;
+                        errmsgSet.add('<p>Duplicate item in the table, please double check!</p>');
+                    }
+                    objData.push(rowData.obj)// Add the obj in the list to check repeat
+
+                });
+
+                const errorMessages = [...errmsgSet].join("");
+                $('#errorMessages').html(errorMessages);
+
+
+                if (hasError) {
+                    console.log("error")
+                    return;
+                }
+
+                console.log("send data")
+
+                // Send the data to the backend using an AJAX request
+                $.ajax({
+                    url: '/purchase/', // Change this to your backend URL
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(tableData),
+                    success: function (response) {
+                        console.log('Data sent successfully:', response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Error:', error);
+                    }
+                });
             })
 
         }
 
-        /*
-                $(document).ready(function () {
-                    // Store the first row as a template
-                    itemRow = $("tbody tr").first();
-                    console.log("Template row:", itemRow);
-
-                    // Bind click event to "Add Row" button
-                    $("#addItem").click(function () {
-                        const newRow = itemRow.clone(); // Clone the template row
-                        $("#tableBody").append(newRow); // Append the new row to the tbody
-                    });
-
-                    // Delegate click event for dynamically created delete buttons
-                    $(document).on("click", ".deleteBtn", function () {
-                        $(this).closest("tr").remove(); // Remove the clicked row
-                    });
-                });
-                */
-
-
-
-        /*
-
-        $(function () {
-            bindDeleteBtnEvent()
-            bindAddItemEvent()
-        })
-        ;
-
-
-        function bindDeleteBtnEvent(button) {
-            const row = button.closest("tr");
-            if (row) {
-                row.remove();
-            }
-        }
-
-
-        function bindAddItemEvent() {
-
-            $("addItem").click(
-                function () {
-                    const newRow = itemRow.clone();
-                    $("#tableBody").append(newRow);
-                }
-            )
-        }
-
-        function bindBtn1Event() {
-            $("#btn1").click(
-                function () {
-                    $.ajax({
-                        url: '/test/ajax/',
-                        type: 'post',
-                        data: {
-                            n1: 132,
-                            n2: 132
-                        },
-                        dataType: "JSON",
-                        success: function (res) {
-                            console.log(res)
-
-                        }
-                    })
-                })
-        }
-
-*/
     </script>
 {% endblock %}
