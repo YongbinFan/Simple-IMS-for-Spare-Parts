@@ -19,7 +19,7 @@ class Trade(object):
     def __init__(self, request, trade_way, ):
         self.trade_way = trade_way
         self.request = request
-        print("self.trade_way:"+self.trade_way)
+        print("self.trade_way:" + self.trade_way)
 
     def get_response(self):
         data = json.loads(self.request.body)
@@ -68,14 +68,18 @@ class Trade(object):
                         }
                         return response
                     update_quantity = obj.quantity - item_quantity
-                    item_list.append((item_id, update_quantity))
-
+                    item_quantity = - item_quantity
                 elif self.trade_way == "purchase":
                     print("purchase")
                     update_quantity = obj.quantity + item_quantity
-                    item_list.append((item_id, update_quantity))
                 else:
                     raise ValueError("Invalid value! 'trade_way' must be either 'sale' or 'purchase'.")
+
+                update_other = item.get("other").strip()
+                if not update_other:
+                    update_other = "/"
+
+                item_list.append((item_id, update_quantity, item_quantity, update_other))
             else:
                 response = {
                     "status": False,
@@ -83,8 +87,10 @@ class Trade(object):
                 }
                 return response
 
-        for current_id, current_quantity in item_list:
+        for current_id, current_quantity, trade_quantity, other in item_list:
+            print(other)
             models.SpareParts.objects.filter(id=current_id).update(quantity=current_quantity)
+            models.Trade.objects.create(spareparts_id_id=current_id, quantity=trade_quantity, other=other)
 
         response = {
             "status": True,
