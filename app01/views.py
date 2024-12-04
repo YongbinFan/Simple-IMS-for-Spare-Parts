@@ -2,11 +2,13 @@ import json
 import re
 
 from django.shortcuts import render, HttpResponse, redirect
+from django.http import JsonResponse
 from app01 import models
 from django import forms
 from django.utils.safestring import mark_safe
 from app01.utils.pagination import Pagination
 from app01.utils.encrypt import md5
+from app01.utils.trade import Trade
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -98,7 +100,6 @@ def user_add(request):
 
         return redirect("/user/list/")
     else:
-        print(form.errors)
         return render(request, "user_add.html", {"form": form})
 
 
@@ -106,7 +107,6 @@ def user_edit(request, nid):
     """Edit User"""
     row_object = models.UserInfo.objects.filter(id=nid).first()
     row_object.password = "******"
-    print(row_object.password)
     form = UserModelForm(instance=row_object)
     form.fields["password"].initial = "******"
 
@@ -119,10 +119,8 @@ def user_edit(request, nid):
 
     form = UserModelForm(data=request.POST, instance=row_object)
     if form.is_valid():
-        print("valid")
         form.save()
         return redirect("/user/list/")
-    # print(form.errors)
     return render(request, "user_add.html", {"form": form})
 
 
@@ -246,7 +244,6 @@ def spareparts_edit(request, nid):
     if form.is_valid():
         form.save()
         return redirect("/spareparts/list/")
-    # print(form.errors)
     return render(request, "spareparts_add.html", {"form": form})
 
 
@@ -306,25 +303,33 @@ def logout(request):
     return redirect("/login/")
 
 
+@csrf_exempt
+def sale(request):
+    if request.method == "GET":
+        queryset = models.SpareParts.objects.all()
+        info = {
+            "queryset": queryset,
+            "trade_way": "Sale"
+        }
+        return render(request, "trade.html", info)
+
+    trade_obj = Trade(request, trade_way="sale")
+    response = trade_obj.get_response()
+
+    return JsonResponse(response)
+
 
 @csrf_exempt
 def purchase(request):
     if request.method == "GET":
         queryset = models.SpareParts.objects.all()
         info = {
-            "queryset": queryset
+            "queryset": queryset,
+            "trade_way": "Purchase"
         }
-        return render(request, "purchase.html", info)
+        return render(request, "trade.html", info)
 
-    data = json.loads(request.body)
-    for item in data:
-        obj_str = item.get("obj")
-        match = re.search(r"ID:(\d+)", obj_str)
-        if match:
-            item_id = int(match.group(1))
-            item_quantity = int(item.get("quantity"), 0)
-            print(item_id, item_quantity)
-    # print(type(data[0]))
-    # print(data)
-    # print(data[0]["obj"])
-    return HttpResponse("Successful sent data!")
+    trade_obj = Trade(request, trade_way="purchase")
+    response = trade_obj.get_response()
+
+    return JsonResponse(response)

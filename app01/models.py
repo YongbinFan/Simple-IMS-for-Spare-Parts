@@ -15,8 +15,7 @@ class UserInfo(models.Model):
     name = models.CharField(verbose_name="Name", max_length=32)
     password = models.CharField(verbose_name="Password", max_length=64)
     create_time = models.DateTimeField(verbose_name="Create Time", auto_now_add=True)
-    depart_id = models.ForeignKey(verbose_name="Department", to="Department", to_field="id", on_delete=models.CASCADE,
-                                  default=999)
+    depart_id = models.ForeignKey(verbose_name="Department", to="Department", to_field="id", on_delete=models.CASCADE)
 
     gender_choices = (
         (1, "Male"),
@@ -41,9 +40,9 @@ class SpareParts(models.Model):
         return "**".join([
             "ID:" + str(self.id),
             "Series:" + self.get_series_display(),
-            "Part-No:" + self.part_no,
+            "PartNo:" + self.part_no,
             "Model:" + self.model,
-            "Quantity-Now:" + str(self.quantity)
+            "Quantity:" + str(self.quantity)
         ])
 
 
@@ -51,4 +50,5 @@ class Trade(models.Model):
     spareparts_id = models.ForeignKey(verbose_name="Spare Part", to="SpareParts", to_field="id",
                                       on_delete=models.CASCADE)
     quantity = models.IntegerField(verbose_name="Quantity", default=0)
+    other = models.CharField(verbose_name="Other", default="/", max_length=256)
     trade_time = models.DateTimeField(verbose_name="Trade Time", auto_now_add=True)

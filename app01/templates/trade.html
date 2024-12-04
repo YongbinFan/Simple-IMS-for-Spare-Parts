@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}
-    Spare Parts List
+    Spare Parts {{ trade_way }}
 {% endblock %}
 {% block content %}
     <div style="margin-bottom: 10px" class="clearfix">
@@ -9,14 +9,16 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            Purchase Order
+            {{ trade_way }} Order
         </div>
         <table class="table">
             <thead>
             <tr>
-                <th>Select</th>
-                <th style="width: 15%">Quantity</th>
-                <th>Operate</th>
+                <th style="width: 55%">Select</th>
+                <th>Other</th>
+
+                <th style="width: 10%">Quantity</th>
+                <th style="width: 5%">Operate</th>
             </tr>
             </thead>
             <tbody id="tableBody">
@@ -30,7 +32,13 @@
                     </datalist>
                 </td>
                 <td>
-                    <input name="quantity" required class="form-control" min="1" value=1 style="width: 100%"/>
+                    <input name="other" required class="form-control" placeholder="Can be empty"/>
+
+                </td>
+                <td>
+                    <input type=number name="quantity" required class="form-control" min=0 value=0
+                           style="width: 100%"/>
+
 
                 </td>
                 <td>
@@ -79,7 +87,6 @@
                 // Optionally set the quantity input to 1 as a default
                 newRow.find('input[name="quantity"]').val(1);
 
-                console.log("add")
                 $("#tableBody").append(newRow); // Append the new row to the tbody
             });
         }
@@ -115,6 +122,10 @@
                     // Get the value of the 'quantity' input
                     rowData.quantity = $(this).find('input[name="quantity"]').val();
 
+                    // Get the value of the 'quantity' input
+                    rowData.other = $(this).find('input[name="other"]').val();
+
+
                     if (!rowData.obj.trim()) {
                         hasError = true;
                         errmsgSet.add('<p>Object field cannot be empty.</p>');
@@ -125,7 +136,7 @@
                         errmsgSet.add('<p>Quantity must be greater than 0.</p>');
                     }
 
-                    if (!Number.isInteger(rowData.quantity)) {
+                    if (!Number.isInteger(Number(rowData.quantity))) {
                         hasError = true;
                         errmsgSet.add('<p>Quantity must be Integer.</p>');
                     }
@@ -133,16 +144,11 @@
                     tableData.push(rowData); // Add the row data to the array
 
 
-                    console.log(objData)
-                    console.log(rowData.obj)
-                    console.log(objData.includes(rowData.obj))
-
                     {#const myList = ["sdfsd", "dsf"];#}
                     const valueToCheck = rowData.obj;
 
                     // Check if the value exists in the array
                     if (objData.includes(valueToCheck)) {
-                        console.log(`${valueToCheck} exists in the list.`);
                         hasError = true;
                         errmsgSet.add('<p>Duplicate item in the table, please double check!</p>');
                     }
@@ -155,23 +161,31 @@
 
 
                 if (hasError) {
-                    console.log("error")
                     return;
                 }
 
-                console.log("send data")
 
                 // Send the data to the backend using an AJAX request
                 $.ajax({
-                    url: '/purchase/', // Change this to your backend URL
+                    {# sent to current page, no need to define #}
+                    {#url: '/sale/', // Change this to your backend URL#}
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(tableData),
                     success: function (response) {
-                        console.log('Data sent successfully:', response);
+                        if (response.status) {
+                            if (confirm("Operation successful! Click OK to add new order.")) {
+                                location.reload(); // Refresh the page
+                            }
+                        } else {
+                            errMsg = response.err_msg;
+                            errmsgSet.add('<p>' + errMsg + '</p>');
+                            const errorMessages = [...errmsgSet].join("");
+                            $('#errorMessages').html(errorMessages);
+                        }
+
                     },
                     error: function (xhr, status, error) {
-                        console.log('Error:', error);
                     }
                 });
             })
