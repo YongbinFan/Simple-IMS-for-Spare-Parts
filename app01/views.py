@@ -93,10 +93,14 @@ def user_add(request):
     form = UserModelForm(data=request.POST)
 
     if form.is_valid():
-        # now_timestamp = datetime.datetime.now().timestamp()
         form = UserModelForm(request.POST)
-        # form.instance.create_time = now_timestamp
         form.save()
+        new_obj = models.UserInfo.objects.last()
+        log_info = {
+            "new_info": str(new_obj),
+            "created_by_id": request.session["info"]["id"]
+        }
+        models.EditLog.objects.create(**log_info)
 
         return redirect("/user/list/")
     else:
@@ -106,6 +110,7 @@ def user_add(request):
 def user_edit(request, nid):
     """Edit User"""
     row_object = models.UserInfo.objects.filter(id=nid).first()
+    old_info = str(row_object)
     row_object.password = "******"
     form = UserModelForm(instance=row_object)
     form.fields["password"].initial = "******"
@@ -119,13 +124,44 @@ def user_edit(request, nid):
 
     form = UserModelForm(data=request.POST, instance=row_object)
     if form.is_valid():
-        form.save()
+        post_data = request.POST.copy()
+        if post_data["depart_id"] != "":
+            depart_id = post_data["depart_id"]
+        else:
+            depart_id = None
+
+        # Check if the password field should be removed
+        if post_data.get('password') == '******':
+
+            models.UserInfo.objects.filter(id=row_object.id).update(
+                name=post_data["name"],
+                depart_id=depart_id,
+                gender=int(post_data["gender"])
+            )
+        else:
+            # Pass the modified data to the form
+            form.save()
+        new_info = str(models.UserInfo.objects.filter(id=row_object.id).first())
+        log_info = {
+            "old_info": old_info,
+            "new_info": new_info,
+            "created_by_id": request.session["info"]["id"]
+        }
+        models.EditLog.objects.create(**log_info)
+
         return redirect("/user/list/")
-    return render(request, "user_add.html", {"form": form})
+    return render(request, "user_edit.html", {"form": form})
 
 
 def user_delete(request, nid):
     """Delete User"""
+    obj = models.UserInfo.objects.filter(id=nid).first()
+    log_info = {
+        "old_info": str(obj),
+        # "new_info": new_info,
+        "created_by_id": request.session["info"]["id"]
+    }
+    models.EditLog.objects.create(**log_info)
     models.UserInfo.objects.filter(id=nid).delete()
 
     return redirect("/user/list/")
@@ -172,12 +208,6 @@ def spareparts_list(request):
             data_dict["quantity__lte"] = quantity_lte
         except:
             pass
-    try:
-        page = int(request.GET.get("page", 1))
-    except:
-        page = 1
-    if page <= 0:
-        page = 1
 
     page_object = Pagination(request, data_dict=data_dict)
     queryset = page_object.queryset
@@ -223,6 +253,13 @@ def spareparts_add(request):
 
     if form.is_valid():
         form.save()
+        # add info to EditLog
+        new_obj = models.SpareParts.objects.last()
+        log_info = {
+            "new_info": str(new_obj),
+            "created_by_id": request.session["info"]["id"]
+        }
+        models.EditLog.objects.create(**log_info)
 
         return redirect("/spareparts/list/")
     else:
@@ -232,6 +269,7 @@ def spareparts_add(request):
 def spareparts_edit(request, nid):
     """Edit Spare Parts"""
     row_object = models.SpareParts.objects.filter(id=nid).first()
+    old_info = str(row_object)
     form = SparepartsModelForm(instance=row_object)
     if request.method == "GET":
         info = {
@@ -243,12 +281,26 @@ def spareparts_edit(request, nid):
     form = SparepartsModelForm(data=request.POST, instance=row_object)
     if form.is_valid():
         form.save()
+        new_info = str(models.SpareParts.objects.filter(id=row_object.id).first())
+        log_info = {
+            "old_info": old_info,
+            "new_info": new_info,
+            "created_by_id": request.session["info"]["id"]
+        }
+        models.EditLog.objects.create(**log_info)
         return redirect("/spareparts/list/")
     return render(request, "spareparts_add.html", {"form": form})
 
 
 def spareparts_delete(request, nid):
     """Delete User"""
+    obj = models.SpareParts.objects.filter(id=nid).first()
+    log_info = {
+        "old_info": str(obj),
+        # "new_info": new_info,
+        "created_by_id": request.session["info"]["id"]
+    }
+    models.EditLog.objects.create(**log_info)
     models.SpareParts.objects.filter(id=nid).delete()
 
     return redirect("/spareparts/list/")

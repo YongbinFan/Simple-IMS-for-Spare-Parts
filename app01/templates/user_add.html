@@ -13,7 +13,6 @@
                 {% for field in form %}
                     <div class="form-group">
                         <label>{{ field.label }}</label>
-{#                        <input type="text" class="form-control" placeholder="Title" name="title">#}
                         {{ field }}
                     <span style="color: red">{{ field.errors.0 }}</span>
                     </div>
