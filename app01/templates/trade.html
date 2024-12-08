@@ -15,7 +15,7 @@
             <thead>
             <tr>
                 <th style="width: 55%">Select</th>
-                <th>Other</th>
+{#                <th>Other</th>#}
 
                 <th style="width: 10%">Quantity</th>
                 <th style="width: 5%">Operate</th>
@@ -24,17 +24,17 @@
             <tbody id="tableBody">
             <tr>
                 <td>
-                    <input style="width:600px" list="select" name="obj" class="form-control"/>
+                    <input style="width:100%" list="select" name="obj" class="form-control"/>
                     <datalist id="select" >
                         {% for obj in queryset %}
                             <option  value="{{ obj }}" >
                         {% endfor %}
                     </datalist>
                 </td>
-                <td>
-                    <input name="other" required class="form-control" placeholder="Can be empty"/>
-
-                </td>
+{#                <td>#}
+{#                    <input name="other" required class="form-control" placeholder="Can be empty"/>#}
+{##}
+{#                </td>#}
                 <td>
                     <input type=number name="quantity" required class="form-control" min=0 value=0
                            style="width: 100%"/>

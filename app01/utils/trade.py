@@ -88,17 +88,12 @@ class Trade(object):
             else:
                 raise ValueError("Invalid value! 'trade_way' must be either 'sale' or 'purchase'.")
 
-            update_other = item.get("other").strip()
-            if not update_other:
-                update_other = "/"
-
-            item_list.append((item_id, update_quantity, item_quantity, update_other))
+            item_list.append((item_id, update_quantity, item_quantity))
             id_list.append(item_id)
 
-        for current_id, current_quantity, trade_quantity, other in item_list:
-            print(other)
+        for current_id, current_quantity, trade_quantity in item_list:
             models.SpareParts.objects.filter(id=current_id).update(quantity=current_quantity)
-            models.Trade.objects.create(spareparts_id_id=current_id, quantity=trade_quantity, other=other,
+            models.Trade.objects.create(spareparts_id_id=current_id, quantity=trade_quantity,
                                         created_by_id=self.request.session["info"]["id"])
 
         response = {
