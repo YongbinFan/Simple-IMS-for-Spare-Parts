@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% load static %}
+{% block title %}
+    Data Analyse
+{% endblock %}
+{% block content %}
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 1
+            </div>
+            <div class="panel-body">
+                <div id="main" style="width: 100%;height:500px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 1
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 1
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 1
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script>
+// Initialize the echarts instance based on the prepared dom
+      var myChart = echarts.init(document.getElementById('main'));
+
+      // Specify the configuration items and data for the chart
+      var option = {
+        title: {
+          text: 'ECharts Getting Started Example'
+        },
+        tooltip: {},
+        legend: {
+          data: ['sales']
+        },
+        xAxis: {
+          data: ['Shirts', 'Cardigans', 'Chiffons', 'Pants', 'Heels', 'Socks']
+        },
+        yAxis: {},
+        series: [
+          {
+            name: 'sales',
+            type: 'bar',
+            data: [5, 20, 36, 10, 10, 20]
+          }
+        ]
+      };
+
+      // Display the chart using the configuration items and data just specified.
+      myChart.setOption(option);
+    </script>
+{% endblock %}

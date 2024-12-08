@@ -44,4 +44,6 @@ urlpatterns = [
     path("sale/", views.sale),
     path("purchase/", views.purchase),
 
+    path("data/analyse", views.data_analyse),
+
 ]

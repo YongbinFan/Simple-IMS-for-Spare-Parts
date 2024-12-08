@@ -24,68 +24,76 @@ class Trade(object):
     def get_response(self):
         data = json.loads(self.request.body)
         item_list = []
+        id_list = []
         for item in data:
             obj_str = item.get("obj")
-            match = re.search(r"ID:(\d+)", obj_str)
-            if match:
-                item_id = int(match.group(1))
-                obj = models.SpareParts.objects.filter(id=item_id).first()
-                # check item id exist
-                if not obj:
-                    response = {
-                        "status": False,
-                        "err_msg": "Cannot find the item, please double check the ID!!"
-                    }
-                    return response
-
-                # check quantity format
-                item_quantity = 0
-                try:
-                    item_quantity = int(item.get("quantity"))
-                except ValueError:
-                    response = {
-                        "status": False,
-                        "err_msg": "Please fill with right quantity format!"
-                    }
-                    return response
-                # check quantity value
-                if item_quantity <= 0:
-                    response = {
-                        "status": False,
-                        "err_msg": "Quantity must be greater than 0!"
-                    }
-                    return response
-
-                # check different trade way, purchase or sale
-                if self.trade_way == "sale":
-                    print("sale")
-                    # check inventory
-
-                    if item_quantity > obj.quantity:
-                        response = {
-                            "status": False,
-                            "err_msg": obj.__str__() + " Not enough inventory, please double check."
-                        }
-                        return response
-                    update_quantity = obj.quantity - item_quantity
-                    item_quantity = - item_quantity
-                elif self.trade_way == "purchase":
-                    print("purchase")
-                    update_quantity = obj.quantity + item_quantity
-                else:
-                    raise ValueError("Invalid value! 'trade_way' must be either 'sale' or 'purchase'.")
-
-                update_other = item.get("other").strip()
-                if not update_other:
-                    update_other = "/"
-
-                item_list.append((item_id, update_quantity, item_quantity, update_other))
-            else:
+            try:
+                item_id = int(obj_str.split("*")[0])
+            except:
                 response = {
                     "status": False,
                     "err_msg": "Wrong Item Format, Please double check!"
                 }
                 return response
+            if item_id in id_list:
+                response = {
+                    "status": False,
+                    "err_msg": "Duplicate item in the table, please double check!"
+                }
+                return response
+
+            obj = models.SpareParts.objects.filter(id=item_id).first()
+            # check item id exist
+            if not obj:
+                response = {
+                    "status": False,
+                    "err_msg": "Cannot find the item, please double check the ID!!"
+                }
+                return response
+
+            # check quantity format
+            item_quantity = 0
+            try:
+                item_quantity = int(item.get("quantity"))
+            except ValueError:
+                response = {
+                    "status": False,
+                    "err_msg": "Please fill with right quantity format!"
+                }
+                return response
+            # check quantity value
+            if item_quantity <= 0:
+                response = {
+                    "status": False,
+                    "err_msg": "Quantity must be greater than 0!"
+                }
+                return response
+
+            # check different trade way, purchase or sale
+            if self.trade_way == "sale":
+                print("sale")
+                # check inventory
+
+                if item_quantity > obj.quantity:
+                    response = {
+                        "status": False,
+                        "err_msg": obj.__str__() + " Not enough inventory, please double check."
+                    }
+                    return response
+                update_quantity = obj.quantity - item_quantity
+                item_quantity = - item_quantity
+            elif self.trade_way == "purchase":
+                print("purchase")
+                update_quantity = obj.quantity + item_quantity
+            else:
+                raise ValueError("Invalid value! 'trade_way' must be either 'sale' or 'purchase'.")
+
+            update_other = item.get("other").strip()
+            if not update_other:
+                update_other = "/"
+
+            item_list.append((item_id, update_quantity, item_quantity, update_other))
+            id_list.append(item_id)
 
         for current_id, current_quantity, trade_quantity, other in item_list:
             print(other)

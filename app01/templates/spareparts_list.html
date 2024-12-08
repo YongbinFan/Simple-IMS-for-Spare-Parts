@@ -67,12 +67,12 @@
                 <th>Quantity</th>
                 <th>other</th>
                 <th>Last Edit</th>
-                <th>Operate</th>
+                <th style="width: 10%">Operate</th>
             </tr>
             </thead>
             <tbody>
             {% for obj in queryset %}
-                <tr>
+                <tr uid="{{ obj.id }}">
                     <th>{{ obj.id }}</th>
                     <td>{{ obj.get_series_display }}</td>
                     <td>{{ obj.part_no }}</td>
@@ -82,7 +82,7 @@
                     <td>{{ obj.last_edit }}</td>
                     <td>
                         <a class="btn btn-primary btn-xs" href="/spareparts/{{ obj.id }}/edit/">Edit</a>
-                        <a class="btn btn-danger btn-xs" href="/spareparts/{{ obj.id }}/delete/">Delete</a>
+                        <a uid="{{ obj.id }}" class="btn btn-danger btn-xs btn-delete">Delete</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -91,8 +91,62 @@
 
     </div>
     <ul class="pagination">
-    {{ page_str }}
+        {{ page_str }}
     </ul>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>Are you sure you want to delete this item?</h4>
+                <p>After Delete You Cannot Find Back The Data!!!</p>
+                <p style="text-align: right">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </p>
+            </div>
+        </div>
+    </div>
 
+{% endblock %}
 
+{% block js %}
+    <script>
+        var DELETE_ID;
+
+        $(function () {
+            bindBtnDeleteEvent();
+            bindBtnConfirmDeleteEvent();
+        })
+
+        function bindBtnDeleteEvent() {
+            $(".btn-delete").click(
+                function () {
+                    $("#deleteModal").modal("show");
+
+                    DELETE_ID = $(this).attr("uid");
+                }
+            );
+        }
+
+        function bindBtnConfirmDeleteEvent() {
+            $("#btnConfirmDelete").click(function () {
+                $.ajax({
+                    url: "/spareparts/" + DELETE_ID + "/delete/",
+                    type:"GET",
+                    dataType:"JSON",
+                    success:function (res) {
+                        if(res.status){
+                            $("#deleteModal").modal("hide");
+
+                            $("tr[uid= '"+DELETE_ID+"']").remove()
+
+                            DELETE_ID = 0;
+                        } else {
+                            alert("Item Not Exists!!");
+                        }
+                    }
+                })
+            })
+        }
+    </script>
 {% endblock %}

@@ -24,10 +24,10 @@
             <tbody id="tableBody">
             <tr>
                 <td>
-                    <input list="select" name="obj" class="form-control"/>
-                    <datalist id="select">
+                    <input style="width:600px" list="select" name="obj" class="form-control"/>
+                    <datalist id="select" >
                         {% for obj in queryset %}
-                            <option value={{ obj }}>
+                            <option  value="{{ obj }}" >
                         {% endfor %}
                     </datalist>
                 </td>

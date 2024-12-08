@@ -170,14 +170,20 @@ def user_delete(request, nid):
 def spareparts_list(request):
     """ Spare Parts List """
     # fake data
-    # for i in range(300):
-    #     import random
-    #     models.SpareParts.objects.create(
-    #         series=str(random.randint(1, 2)),
-    #         part_no=str(random.randint(10000000, 99999999)),
-    #         model=str(random.randint(1000, 9999)),
-    #         quantity=random.randint(0, 1000)
-    #     )
+
+    # import csv
+    # import random
+    # csv_file = "products.csv"  # Replace with the path to your CSV file
+    # with open(csv_file, newline='', encoding='utf-8') as file:
+    #     reader = csv.DictReader(file)
+    #     for row in reader:
+    #         models.SpareParts.objects.create(
+    #             part_no=row["part_no"],
+    #             model=row["model"][7:],
+    #             quantity=random.randint(0, 500),  # Generate random quantity
+    #             series=random.choice(["1", "2"])  # Random series
+    #         )
+    #
 
     data_dict = {}
 
@@ -294,6 +300,10 @@ def spareparts_edit(request, nid):
 
 def spareparts_delete(request, nid):
     """Delete User"""
+    exists = models.SpareParts.objects.filter(id=nid).exists()
+    if not exists:
+        return JsonResponse({"status": False})
+
     obj = models.SpareParts.objects.filter(id=nid).first()
     log_info = {
         "old_info": str(obj),
@@ -303,7 +313,7 @@ def spareparts_delete(request, nid):
     models.EditLog.objects.create(**log_info)
     models.SpareParts.objects.filter(id=nid).delete()
 
-    return redirect("/spareparts/list/")
+    return JsonResponse({"status": True})
 
 
 class LoginForm(forms.Form):
@@ -385,3 +395,7 @@ def purchase(request):
     response = trade_obj.get_response()
 
     return JsonResponse(response)
+
+
+def data_analyse(request):
+    return render(request, "data_analyse.html")

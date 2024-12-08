@@ -45,7 +45,7 @@ class SpareParts(models.Model):
     )
     series = models.SmallIntegerField(verbose_name="Series", choices=series_choices, default=1)
     part_no = models.CharField(verbose_name="Part No.", max_length=32)
-    model = models.CharField(verbose_name="Model", max_length=64)
+    model = models.CharField(verbose_name="Model", max_length=512)
     quantity = models.IntegerField(verbose_name="Quantity", default=0)
     other = models.CharField(verbose_name="Other", max_length=128, blank=True, null=True)
     last_edit = models.DateTimeField(verbose_name="Last Edit Time", auto_now=True)
@@ -55,13 +55,13 @@ class SpareParts(models.Model):
             other_str = str(self.other)
         except TypeError:
             other_str = "/"
-        return "**".join([
-            "ID:" + str(self.id),
-            "Series:" + self.get_series_display(),
-            "PartNo:" + self.part_no,
-            "Model:" + self.model,
-            "Quantity:" + str(self.quantity),
-            "Other:" + other_str
+        return "*".join([
+            str(self.id),
+            self.get_series_display(),
+            self.part_no,
+            self.model,
+            str(self.quantity),
+            other_str
         ])
 
 
