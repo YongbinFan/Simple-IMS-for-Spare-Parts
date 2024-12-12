@@ -232,7 +232,7 @@ def spareparts_list(request, faker=None):
         except:
             pass
 
-    page_object = Pagination(request, data_dict=data_dict)
+    page_object = Pagination(request, data_dict=data_dict, page_size=10)
     queryset = page_object.queryset
     page_str = page_object.page_str
 
