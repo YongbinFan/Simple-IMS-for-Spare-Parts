@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from app01.utils.pagination import Pagination
 from app01.utils.encrypt import md5
 from app01.utils.trade import Trade
+from app01.utils.data_analyse import inventory_distribution, SaleData
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -167,12 +168,13 @@ def user_delete(request, nid):
     return redirect("/user/list/")
 
 
-def spareparts_list(request):
+def spareparts_list(request, faker=None):
     """ Spare Parts List """
     # fake data
 
     # import csv
     # import random
+    # from faker import Faker
     # csv_file = "products.csv"  # Replace with the path to your CSV file
     # with open(csv_file, newline='', encoding='utf-8') as file:
     #     reader = csv.DictReader(file)
@@ -184,6 +186,21 @@ def spareparts_list(request):
     #             series=random.choice(["1", "2"])  # Random series
     #         )
     #
+    # trade fake data
+    # faker = Faker()
+    # for _ in range(300):
+    #     quantity = random.randint(-50, 50)  # Random quantity
+    #     other = "/"  # Static value
+    #     trade_time = faker.date_time_between(start_date="-2y", end_date="now")  # Random date within the last year
+    #     spareparts_id_id = random.randint(5, 73)  # Assuming foreign keys range from 1 to 20
+    #     created_by_id = random.randint(1, 2)  # Assuming foreign keys range from 1 to 5
+    #     models.Trade.objects.create(
+    #         spareparts_id_id=spareparts_id_id,
+    #         created_by_id=created_by_id,
+    #         trade_time=trade_time,
+    #         other=other,
+    #         quantity=quantity
+    #     )
 
     data_dict = {}
 
@@ -399,3 +416,17 @@ def purchase(request):
 
 def data_analyse(request):
     return render(request, "data_analyse.html")
+
+
+def api_data(request):
+    sale_data = SaleData()
+    info = {
+        "inventory_distribution": inventory_distribution(),
+        "top_sale_list": sale_data.get_sale_data(15),
+        "sale_vs_inventory": sale_data.get_sale_vs_inventory(30),
+        "asc_current_inventory": sale_data.get_current_inventory(15, sort="asc"),
+        "desc_current_inventory": sale_data.get_current_inventory(15, sort="desc"),
+    }
+
+    print(sale_data.get_current_inventory(15, sort="asc"))
+    return JsonResponse(info)

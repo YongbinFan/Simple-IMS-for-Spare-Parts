@@ -66,7 +66,7 @@ class SpareParts(models.Model):
 
 
 class Trade(models.Model):
-    # if quantity > 0 means purchase new spareparts from vendor, quantity>0 means sell spareparts to customer
+    # if quantity > 0 means purchase new spareparts from vendor, quantity<0 means sell spareparts to customer
     spareparts_id = models.ForeignKey(verbose_name="Spare Part", to="SpareParts", to_field="id",
                                       on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(verbose_name="Quantity", default=0)

@@ -45,5 +45,6 @@ urlpatterns = [
     path("purchase/", views.purchase),
 
     path("data/analyse", views.data_analyse),
+    path("api/data", views.api_data),
 
 ]

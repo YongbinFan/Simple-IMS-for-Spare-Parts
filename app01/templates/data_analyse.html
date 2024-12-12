@@ -11,7 +11,7 @@
                 Chart 1
             </div>
             <div class="panel-body">
-                <div id="main" style="width: 100%;height:500px;"></div>
+                <div id="inventDistr" style="width: 100%;height:400px;"></div>
             </div>
         </div>
     </div>
@@ -19,60 +19,119 @@
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Chart 1
+                Chart 2
             </div>
             <div class="panel-body">
+                <div id="allSale" style="width: 100%;height:400px;"></div>
+
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Chart 1
+                Chart 3
             </div>
             <div class="panel-body">
+                <div id="1yearSale" style="width: 100%;height:400px;"></div>
+
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Chart 1
+                Chart 4
             </div>
             <div class="panel-body">
+                <div id="3monthSale" style="width: 100%;height:400px;"></div>
+
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 5
+            </div>
+            <div class="panel-body">
+                <div id="1monthSale" style="width: 100%;height:400px;"></div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 6
+            </div>
+            <div class="panel-body">
+                <div id="saleVsInventory" style="width: 100%;height:400px;"></div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 7
+            </div>
+            <div class="panel-body">
+                <div id="ascCurrentInventory" style="width: 100%;height:400px;"></div>
+
+            </div>
+        </div>
+    </div>
+        <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Chart 8
+            </div>
+            <div class="panel-body">
+                <div id="descCurrentInventory" style="width: 100%;height:400px;"></div>
+
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 {% block js %}
     <script src="{% static 'js/echarts.js' %}"></script>
     <script>
-// Initialize the echarts instance based on the prepared dom
-      var myChart = echarts.init(document.getElementById('main'));
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/data",
+                method: "GET",
+                dataType: "json",
+                success: function (res) {
+                    const inventDistr = res.inventory_distribution;
 
-      // Specify the configuration items and data for the chart
-      var option = {
-        title: {
-          text: 'ECharts Getting Started Example'
-        },
-        tooltip: {},
-        legend: {
-          data: ['sales']
-        },
-        xAxis: {
-          data: ['Shirts', 'Cardigans', 'Chiffons', 'Pants', 'Heels', 'Socks']
-        },
-        yAxis: {},
-        series: [
-          {
-            name: 'sales',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-          }
-        ]
-      };
+                    renderBarChart("inventDistr", inventDistr);
+                    renderBarChart("allSale", res.top_sale_list[0]);
+                    renderBarChart("1yearSale", res.top_sale_list[1]);
+                    renderBarChart("3monthSale", res.top_sale_list[2]);
+                    renderBarChart("1monthSale", res.top_sale_list[3]);
+                    renderBarChart("saleVsInventory", res.sale_vs_inventory);
+                    renderBarChart("ascCurrentInventory", res.asc_current_inventory);
+                    renderBarChart("descCurrentInventory", res.desc_current_inventory);
+                },
+                error: function (error) {
+                    console.error("Error fetching data:", error);
+                }
+            })
+        });
 
-      // Display the chart using the configuration items and data just specified.
-      myChart.setOption(option);
+        function renderBarChart(elementId, chartData) {
+            // Initialize the echarts instance based on the prepared dom
+            var myChart = echarts.init(document.getElementById(elementId));
+
+            // Specify the configuration items and data for the chart
+            option = chartData
+            // Display the chart using the configuration items and data just specified.
+            myChart.setOption(option);
+
+        }
+
+
     </script>
 {% endblock %}
